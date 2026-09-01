@@ -46,7 +46,7 @@ export default async function CandidaterPage() {
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                 <a 
-                  href="https://facebook.com/votreprofil" 
+                  href="https://www.facebook.com/share/1DRe2KvVhQ/?mibextid=wwXIfr" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors w-full sm:w-auto"

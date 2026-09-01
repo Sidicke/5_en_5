@@ -16,7 +16,7 @@ export default async function CandidaturesPage({
   const status = params.status || "";
   const page = parseInt(params.page || "1", 10);
 
-  const { data: candidatures, count } = await getCandidatures(query, status, page);
+  const { data: candidatures, count, error } = await getCandidatures(query, status, page);
   const totalPages = Math.ceil(count / 20);
   const isOpen = await getCandidaturesStatus();
 
@@ -25,6 +25,7 @@ export default async function CandidaturesPage({
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-2xl font-bold">Candidatures</h1>
+          {error && <p className="text-red-500 font-bold mt-2">ERREUR SUPABASE: {error}</p>}
           <p className="text-gray-400 mt-1">{count} candidatures trouvées</p>
         </div>
         <ArchiveButton candidaturesOuvertes={isOpen} />

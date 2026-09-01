@@ -52,12 +52,15 @@ export async function getStats() {
 
   const supabase = await createAdminSupabase();
   const { data: candidatures, error } = await supabase.from("candidatures").select("status");
-  if (error) return { total: 0, byStatus: {} };
+  if (error) {
+    console.error("DEBUG getStats error:", error);
+    return { total: 0, byStatus: {}, error: error.message };
+  }
   const byStatus = candidatures.reduce((acc, curr) => {
     acc[curr.status] = (acc[curr.status] || 0) + 1;
     return acc;
   }, {} as Record<string, number>);
-  return { total: candidatures.length, byStatus };
+  return { total: candidatures.length, byStatus, error: null };
 }
 
 export async function getCandidatures(search: string = "", status: string = "", page: number = 1, semaine?: number) {
@@ -85,7 +88,11 @@ export async function getCandidatures(search: string = "", status: string = "", 
   if (!status && semaine === undefined) query = query.neq("status", "ARCHIVEE");
   
   const { data, count, error } = await query.order("created_at", { ascending: false }).range(offset, offset + limit - 1);
-  return { data: data || [], count: count || 0 };
+  if (error) {
+    console.error("Error fetching candidatures:", error);
+    return { data: [], count: 0, error: error.message };
+  }
+  return { data: data || [], count: count || 0, error: null };
 }
 
 export async function getCandidature(id: string) {

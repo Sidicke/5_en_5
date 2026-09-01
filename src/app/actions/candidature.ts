@@ -53,7 +53,13 @@ export async function submitCandidature(
       .insert(candidatureToSave);
 
     if (error) {
-      console.error("Plan A (Supabase) failed:", error.message);
+      if (error.code === '23505') {
+        return {
+          success: false,
+          message: "Une candidature a déjà été soumise avec cette adresse email.",
+        };
+      }
+      console.error("Plan A (Supabase) failed:", error.message, error);
     } else {
       supabaseSuccess = true;
     }

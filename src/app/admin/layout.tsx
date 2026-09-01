@@ -16,18 +16,16 @@ export default function AdminLayout({
   const router = useRouter();
   
   const supabase = createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL || "https://placeholder.supabase.co",
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "placeholder"
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   );
 
-  // If we are on login page, don't show the layout
   if (pathname === "/admin/login") {
     return <>{children}</>;
   }
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
-    document.cookie = "dev_admin_bypass=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
     router.push("/admin/login");
     router.refresh();
   };
@@ -52,7 +50,7 @@ export default function AdminLayout({
         </button>
       </div>
 
-      {/* Sidebar (Desktop & Mobile) */}
+      {/* Sidebar */}
       <div
         className={`${
           isMobileMenuOpen ? "block" : "hidden"

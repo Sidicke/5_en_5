@@ -5,8 +5,8 @@ export async function createServerSupabase() {
   const cookieStore = await cookies();
 
   return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL || "https://placeholder.supabase.co",
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "placeholder",
+    process.env.SUPABASE_URL!,
+    process.env.SUPABASE_ANON_KEY!,
     {
       global: {
         fetch: (url, options) => {
@@ -35,8 +35,8 @@ export async function createAdminSupabase() {
   const cookieStore = await cookies();
 
   return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_UR || "https://placeholder.supabase.co",
-    process.env.SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || "placeholder",
+    process.env.SUPABASE_URL!,
+    process.env.SERVICE_ROLE_KEY!,
     {
       global: {
         fetch: (url, options) => {

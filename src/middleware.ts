@@ -7,8 +7,8 @@ export async function middleware(request: NextRequest) {
   });
 
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_UR || "https://placeholder.supabase.co",
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || "placeholder",
+    process.env.SUPABASE_URL!,
+    process.env.SUPABASE_ANON_KEY!,
     {
       cookies: {
         getAll() {
@@ -27,7 +27,6 @@ export async function middleware(request: NextRequest) {
     }
   );
 
-  // Refresh the auth token
   const {
     data: { user },
   } = await supabase.auth.getUser();

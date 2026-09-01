@@ -31,7 +31,7 @@ export async function createAdminSupabase() {
 
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL || "https://placeholder.supabase.co",
-    process.env.SUPABASE_SERVICE_ROLE_KEY || "placeholder",
+    process.env.SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || "placeholder",
     {
       cookies: {
         getAll() {

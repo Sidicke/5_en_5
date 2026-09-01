@@ -47,6 +47,10 @@ export async function createAdminSupabase() {
         persistSession: false,
         autoRefreshToken: false,
         detectSessionInUrl: false,
+      },
+      cookies: {
+        getAll: () => [],
+        setAll: () => {},
       }
     }
   );

@@ -60,13 +60,15 @@ export async function getStats() {
   return { total: candidatures.length, byStatus };
 }
 
-export async function getCandidatures(search: string = "", status: string = "", page: number = 1) {
+export async function getCandidatures(search: string = "", status: string = "", page: number = 1, semaine?: number) {
   await assertAdmin();
   if (IS_LOCAL) {
     let candidatures = readLocal(DB_CANDIDATURES);
     if (search) candidatures = candidatures.filter((c: any) => c.nom_entreprise?.toLowerCase().includes(search.toLowerCase()));
     if (status) candidatures = candidatures.filter((c: any) => c.status === status);
-    if (!status) candidatures = candidatures.filter((c: any) => c.status !== "ARCHIVEE");
+    if (semaine !== undefined) candidatures = candidatures.filter((c: any) => c.archive_semaine === semaine);
+    if (!status && semaine === undefined) candidatures = candidatures.filter((c: any) => c.status !== "ARCHIVEE");
+    
     candidatures.sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
     const limit = 20;
     const offset = (page - 1) * limit;
@@ -79,7 +81,9 @@ export async function getCandidatures(search: string = "", status: string = "", 
   let query = supabase.from("candidatures").select("*", { count: "exact" });
   if (search) query = query.ilike("nom_entreprise", `%${search}%`);
   if (status) query = query.eq("status", status);
-  if (!status) query = query.neq("status", "ARCHIVEE");
+  if (semaine !== undefined) query = query.eq("archive_semaine", semaine);
+  if (!status && semaine === undefined) query = query.neq("status", "ARCHIVEE");
+  
   const { data, count, error } = await query.order("created_at", { ascending: false }).range(offset, offset + limit - 1);
   return { data: data || [], count: count || 0 };
 }
@@ -266,4 +270,32 @@ export async function archiveAllCandidatures(semaine: number) {
   revalidatePath("/admin/candidatures");
   revalidatePath("/admin");
   return { success: true, message: `${data.length} candidatures archivées pour la semaine ${semaine}.` };
+}
+
+export async function getArchiveWeeks() {
+  await assertAdmin();
+  if (IS_LOCAL) {
+    const candidatures = readLocal(DB_CANDIDATURES);
+    const weeks = new Set<number>();
+    candidatures.forEach((c: any) => {
+      if (c.status === "ARCHIVEE" && c.archive_semaine) {
+        weeks.add(c.archive_semaine);
+      }
+    });
+    return Array.from(weeks).sort((a, b) => b - a);
+  }
+
+  const supabase = await createAdminSupabase();
+  // Group by doesn't exist out of the box without RPC, so we just fetch all archive_semaines and deduplicate
+  // In production for huge datasets an RPC is better, but this is fine for this scale
+  const { data, error } = await supabase
+    .from("candidatures")
+    .select("archive_semaine")
+    .eq("status", "ARCHIVEE")
+    .not("archive_semaine", "is", null);
+
+  if (error || !data) return [];
+  const weeks = new Set<number>();
+  data.forEach((r: any) => weeks.add(r.archive_semaine));
+  return Array.from(weeks).sort((a, b) => b - a);
 }

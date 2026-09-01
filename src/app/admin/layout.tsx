@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { createBrowserClient } from "@supabase/ssr";
-import { Menu, X, LayoutDashboard, FileText, FolderKanban, LogOut } from "lucide-react";
+import { Menu, X, LayoutDashboard, FileText, FolderKanban, LogOut, FolderArchive } from "lucide-react";
 
 export default function AdminLayout({
   children,
@@ -36,6 +36,7 @@ export default function AdminLayout({
     { name: "Tableau de bord", href: "/admin", icon: LayoutDashboard },
     { name: "Candidatures", href: "/admin/candidatures", icon: FileText },
     { name: "Projets", href: "/admin/projets", icon: FolderKanban },
+    { name: "Archives", href: "/admin/archives", icon: FolderArchive },
   ];
 
   return (

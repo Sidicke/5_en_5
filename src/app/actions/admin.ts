@@ -8,7 +8,7 @@ import fs from 'fs';
 import path from 'path';
 
 // --- MOCK LOCAL DB LOGIC ---
-const IS_LOCAL = process.env.NEXT_PUBLIC_SUPABASE_URL?.includes("placeholder");
+const IS_LOCAL = false;
 const DB_CANDIDATURES = path.join(process.cwd(), "candidatures_backup.json");
 const DB_PROJETS = path.join(process.cwd(), "projets_backup.json");
 

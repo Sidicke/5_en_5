@@ -6,7 +6,7 @@ import path from "path";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 
-const IS_LOCAL = process.env.NEXT_PUBLIC_SUPABASE_URL?.includes("placeholder");
+const IS_LOCAL = false;
 const DB_SETTINGS = path.join(process.cwd(), "settings_backup.json");
 
 function readSettings() {

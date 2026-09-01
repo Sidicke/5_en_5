@@ -16,15 +16,24 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Sidicke Code — 5 EN 5',
-  description: '5 entreprises. 5 semaines. 5 sites vitrines. Candidatez au challenge de création web.',
+  metadataBase: new URL('https://sidickecode5en5challenge.vercel.app'),
+  title: 'Challenge 5 EN 5 | Sidicke Code',
+  description: 'Sidicke Code accompagne les entreprises dans la création et la refonte de sites vitrines modernes. Découvrez le challenge 5 EN 5 : 5 entreprises, 5 semaines, 5 sites vitrines.',
+  keywords: ['création site web', 'site vitrine', 'challenge', 'Sidicke Code', 'développement web', 'startup', 'entreprises'],
+  authors: [{ name: 'Sidicke Code' }],
+  creator: 'Sidicke Code',
   openGraph: {
-    title: 'Sidicke Code — 5 EN 5',
-    description: '5 entreprises. 5 semaines. 5 sites vitrines. Candidatez au challenge de création web.',
-    url: 'https://sidicke-code.com',
+    title: 'Challenge 5 EN 5 | Sidicke Code',
+    description: 'Sidicke Code accompagne les entreprises dans la création et la refonte de sites vitrines modernes. Découvrez le challenge 5 EN 5 : 5 entreprises, 5 semaines, 5 sites vitrines.',
+    url: 'https://sidickecode5en5challenge.vercel.app',
     siteName: 'Sidicke Code',
     locale: 'fr_FR',
     type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Challenge 5 EN 5 | Sidicke Code',
+    description: 'Sidicke Code accompagne les entreprises dans la création et la refonte de sites vitrines modernes. Découvrez le challenge 5 EN 5 : 5 entreprises, 5 semaines, 5 sites vitrines.',
   },
 };
 

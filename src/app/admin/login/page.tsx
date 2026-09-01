@@ -21,6 +21,14 @@ export default function AdminLogin() {
     setLoading(true);
     setError(null);
 
+    // MODE DÉVELOPPEMENT : Bypass sans base de données
+    if (process.env.NODE_ENV === "development" && email === "secours@5en5.com" && password === "Urgence2026!") {
+      document.cookie = "dev_admin_bypass=true; path=/";
+      router.push("/admin");
+      router.refresh();
+      return;
+    }
+
     try {
       const { error } = await supabase.auth.signInWithPassword({
         email,

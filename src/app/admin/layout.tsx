@@ -27,6 +27,7 @@ export default function AdminLayout({
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
+    document.cookie = "dev_admin_bypass=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
     router.push("/admin/login");
     router.refresh();
   };

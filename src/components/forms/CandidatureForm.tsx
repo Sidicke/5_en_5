@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { submitCandidature } from "@/app/actions/candidature";
 import { CandidatureFormData } from "@/types";
+import { motion, AnimatePresence } from "framer-motion";
 
 const ErrorMessage = ({ name, errors }: { name: string, errors: Record<string, string[]> | undefined }) => {
   if (!errors || !errors[name]) return null;
@@ -45,13 +46,27 @@ export default function CandidatureForm() {
   ) => {
     const { name, value, type } = e.target;
     const checked = (e.target as HTMLInputElement).checked;
+    const finalValue = type === "checkbox" ? checked : value;
 
     setFormData((prev) => ({
       ...prev,
-      [name]: type === "checkbox" ? checked : value,
+      [name]: finalValue,
     }));
     
-    if (errors[name]) {
+    if (name === "description_besoin") {
+      if (typeof finalValue === "string" && finalValue.length > 0 && finalValue.length < 20) {
+        setErrors(prev => ({
+          ...prev,
+          description_besoin: ["Décrivez votre besoin (20 caractères minimum)"]
+        }));
+      } else {
+        setErrors(prev => {
+          const newErrors = { ...prev };
+          delete newErrors.description_besoin;
+          return newErrors;
+        });
+      }
+    } else if (errors[name]) {
       setErrors(prev => {
         const newErrors = { ...prev };
         delete newErrors[name];
@@ -123,7 +138,7 @@ export default function CandidatureForm() {
       const result = await submitCandidature(formData);
 
       if (result.success) {
-        router.push("/candidature/succes");
+        router.push("/candidater/confirmation");
       } else {
         if (result.errors) {
           setErrors(result.errors);
@@ -187,184 +202,200 @@ export default function CandidatureForm() {
       </div>
 
       {/* Étape 1 : L'entreprise */}
-      <div className={currentStep === 0 ? "block" : "hidden"}>
-        <div className="space-y-4">
-          <div>
-            <label htmlFor="nom_entreprise" className="block text-sm font-medium text-gray-300 mb-1">
-              Nom de l'entreprise *
-            </label>
-            <input
-              type="text"
-              id="nom_entreprise"
-              name="nom_entreprise"
-              value={formData.nom_entreprise}
-              onChange={handleChange}
-              className={`w-full px-4 py-2.5 bg-gray-800/50 border ${errors.nom_entreprise ? 'border-red-500' : 'border-gray-700'} rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-white transition-colors`}
-              placeholder="Ex: Ma Super Boite"
-            />
-            <ErrorMessage name="nom_entreprise" errors={errors} />
-          </div>
-
-          <div>
-            <label htmlFor="secteur" className="block text-sm font-medium text-gray-300 mb-1">
-              Secteur d'activité *
-            </label>
-            <input
-              type="text"
-              id="secteur"
-              name="secteur"
-              value={formData.secteur}
-              onChange={handleChange}
-              className={`w-full px-4 py-2.5 bg-gray-800/50 border ${errors.secteur ? 'border-red-500' : 'border-gray-700'} rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-white transition-colors`}
-              placeholder="Ex: Restauration, E-commerce, BTP..."
-            />
-            <ErrorMessage name="secteur" errors={errors} />
-          </div>
-
-          <div>
-            <label htmlFor="nom_responsable" className="block text-sm font-medium text-gray-300 mb-1">
-              Prénom & Nom du responsable *
-            </label>
-            <input
-              type="text"
-              id="nom_responsable"
-              name="nom_responsable"
-              value={formData.nom_responsable}
-              onChange={handleChange}
-              className={`w-full px-4 py-2.5 bg-gray-800/50 border ${errors.nom_responsable ? 'border-red-500' : 'border-gray-700'} rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-white transition-colors`}
-              placeholder="Ex: Jean Dupont"
-            />
-            <ErrorMessage name="nom_responsable" errors={errors} />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <AnimatePresence mode="wait">
+        {currentStep === 0 && (
+          <motion.div
+            key="step1"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 20 }}
+            transition={{ duration: 0.3 }}
+            className="space-y-4"
+          >
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-1">
-                Adresse email *
+              <label htmlFor="nom_entreprise" className="block text-sm font-medium text-gray-300 mb-1">
+                Nom de l'entreprise *
               </label>
               <input
-                type="email"
-                id="email"
-                name="email"
-                value={formData.email}
+                type="text"
+                id="nom_entreprise"
+                name="nom_entreprise"
+                value={formData.nom_entreprise}
                 onChange={handleChange}
-                className={`w-full px-4 py-2.5 bg-gray-800/50 border ${errors.email ? 'border-red-500' : 'border-gray-700'} rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-white transition-colors`}
-                placeholder="jean@masuperboite.com"
+                className={`w-full px-4 py-2.5 bg-gray-800/50 border ${errors.nom_entreprise ? 'border-red-500' : 'border-gray-700'} rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-white transition-colors`}
+                placeholder="Ex: Ma Super Boite"
               />
-              <ErrorMessage name="email" errors={errors} />
+              <ErrorMessage name="nom_entreprise" errors={errors} />
             </div>
 
             <div>
-              <label htmlFor="telephone" className="block text-sm font-medium text-gray-300 mb-1">
-                Numéro de téléphone *
+              <label htmlFor="secteur" className="block text-sm font-medium text-gray-300 mb-1">
+                Secteur d'activité *
               </label>
               <input
-                type="tel"
-                id="telephone"
-                name="telephone"
-                value={formData.telephone}
+                type="text"
+                id="secteur"
+                name="secteur"
+                value={formData.secteur}
                 onChange={handleChange}
-                className={`w-full px-4 py-2.5 bg-gray-800/50 border ${errors.telephone ? 'border-red-500' : 'border-gray-700'} rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-white transition-colors`}
-                placeholder="06 12 34 56 78"
+                className={`w-full px-4 py-2.5 bg-gray-800/50 border ${errors.secteur ? 'border-red-500' : 'border-gray-700'} rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-white transition-colors`}
+                placeholder="Ex: Restauration, E-commerce, BTP..."
               />
-              <ErrorMessage name="telephone" errors={errors} />
+              <ErrorMessage name="secteur" errors={errors} />
             </div>
-          </div>
-        </div>
-      </div>
+
+            <div>
+              <label htmlFor="nom_responsable" className="block text-sm font-medium text-gray-300 mb-1">
+                Prénom & Nom du responsable *
+              </label>
+              <input
+                type="text"
+                id="nom_responsable"
+                name="nom_responsable"
+                value={formData.nom_responsable}
+                onChange={handleChange}
+                className={`w-full px-4 py-2.5 bg-gray-800/50 border ${errors.nom_responsable ? 'border-red-500' : 'border-gray-700'} rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-white transition-colors`}
+                placeholder="Ex: Jean Dupont"
+              />
+              <ErrorMessage name="nom_responsable" errors={errors} />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-1">
+                  Adresse email *
+                </label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  className={`w-full px-4 py-2.5 bg-gray-800/50 border ${errors.email ? 'border-red-500' : 'border-gray-700'} rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-white transition-colors`}
+                  placeholder="jean@masuperboite.com"
+                />
+                <ErrorMessage name="email" errors={errors} />
+              </div>
+
+              <div>
+                <label htmlFor="telephone" className="block text-sm font-medium text-gray-300 mb-1">
+                  Numéro de téléphone *
+                </label>
+                <input
+                  type="tel"
+                  id="telephone"
+                  name="telephone"
+                  value={formData.telephone}
+                  onChange={handleChange}
+                  className={`w-full px-4 py-2.5 bg-gray-800/50 border ${errors.telephone ? 'border-red-500' : 'border-gray-700'} rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-white transition-colors`}
+                  placeholder="06 12 34 56 78"
+                />
+                <ErrorMessage name="telephone" errors={errors} />
+              </div>
+            </div>
+          </motion.div>
+        )}
 
       {/* Étape 2 : Le projet */}
-      <div className={currentStep === 1 ? "block" : "hidden"}>
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
-              Type de projet *
-            </label>
-            <div className="grid grid-cols-2 gap-4">
-              <label className={`relative flex cursor-pointer rounded-lg border p-4 shadow-sm focus:outline-none ${formData.type_projet === 'creation' ? 'bg-indigo-900/30 border-indigo-500' : 'bg-gray-800/50 border-gray-700 hover:bg-gray-800'}`}>
-                <input
-                  type="radio"
-                  name="type_projet"
-                  value="creation"
-                  checked={formData.type_projet === "creation"}
-                  onChange={handleChange}
-                  className="sr-only"
-                />
-                <span className="flex flex-1">
-                  <span className="flex flex-col">
-                    <span className="block text-sm font-medium text-white">Création</span>
-                    <span className="mt-1 flex items-center text-xs text-gray-400">Je n'ai pas encore de site web</span>
-                  </span>
-                </span>
-                {formData.type_projet === "creation" && (
-                  <svg className="h-5 w-5 text-indigo-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                  </svg>
-                )}
+        {currentStep === 1 && (
+          <motion.div
+            key="step2"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 20 }}
+            transition={{ duration: 0.3 }}
+            className="space-y-4"
+          >
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                Type de projet *
               </label>
-
-              <label className={`relative flex cursor-pointer rounded-lg border p-4 shadow-sm focus:outline-none ${formData.type_projet === 'refonte' ? 'bg-indigo-900/30 border-indigo-500' : 'bg-gray-800/50 border-gray-700 hover:bg-gray-800'}`}>
-                <input
-                  type="radio"
-                  name="type_projet"
-                  value="refonte"
-                  checked={formData.type_projet === "refonte"}
-                  onChange={handleChange}
-                  className="sr-only"
-                />
-                <span className="flex flex-1">
-                  <span className="flex flex-col">
-                    <span className="block text-sm font-medium text-white">Refonte</span>
-                    <span className="mt-1 flex items-center text-xs text-gray-400">J'ai un site mais je veux le refaire</span>
+              <div className="grid grid-cols-2 gap-4">
+                <label className={`relative flex cursor-pointer rounded-lg border p-4 shadow-sm focus:outline-none ${formData.type_projet === 'creation' ? 'bg-indigo-900/30 border-indigo-500' : 'bg-gray-800/50 border-gray-700 hover:bg-gray-800'}`}>
+                  <input
+                    type="radio"
+                    name="type_projet"
+                    value="creation"
+                    checked={formData.type_projet === "creation"}
+                    onChange={handleChange}
+                    className="sr-only"
+                  />
+                  <span className="flex flex-1">
+                    <span className="flex flex-col">
+                      <span className="block text-sm font-medium text-white">Création</span>
+                      <span className="mt-1 flex items-center text-xs text-gray-400">Je n'ai pas encore de site web</span>
+                    </span>
                   </span>
-                </span>
-                {formData.type_projet === "refonte" && (
-                  <svg className="h-5 w-5 text-indigo-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                  </svg>
-                )}
+                  {formData.type_projet === "creation" && (
+                    <svg className="h-5 w-5 text-indigo-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                  )}
+                </label>
+
+                <label className={`relative flex cursor-pointer rounded-lg border p-4 shadow-sm focus:outline-none ${formData.type_projet === 'refonte' ? 'bg-indigo-900/30 border-indigo-500' : 'bg-gray-800/50 border-gray-700 hover:bg-gray-800'}`}>
+                  <input
+                    type="radio"
+                    name="type_projet"
+                    value="refonte"
+                    checked={formData.type_projet === "refonte"}
+                    onChange={handleChange}
+                    className="sr-only"
+                  />
+                  <span className="flex flex-1">
+                    <span className="flex flex-col">
+                      <span className="block text-sm font-medium text-white">Refonte</span>
+                      <span className="mt-1 flex items-center text-xs text-gray-400">J'ai un site mais je veux le refaire</span>
+                    </span>
+                  </span>
+                  {formData.type_projet === "refonte" && (
+                    <svg className="h-5 w-5 text-indigo-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                  )}
+                </label>
+              </div>
+              <ErrorMessage name="type_projet" errors={errors} />
+            </div>
+
+            <div>
+              <label htmlFor="description_besoin" className="block text-sm font-medium text-gray-300 mb-1">
+                Description de votre besoin *
+              </label>
+              <textarea
+                id="description_besoin"
+                name="description_besoin"
+                rows={5}
+                value={formData.description_besoin}
+                onChange={handleChange}
+                className={`w-full px-4 py-2.5 bg-gray-800/50 border ${errors.description_besoin ? 'border-red-500' : 'border-gray-700'} rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-white transition-colors`}
+                placeholder="Expliquez-nous pourquoi vous avez besoin d'un site web, ce qu'il doit faire..."
+              />
+              <p className="text-xs text-gray-500 mt-1">Minimum 20 caractères.</p>
+              <ErrorMessage name="description_besoin" errors={errors} />
+            </div>
+
+            <div className="space-y-3 pt-4 border-t border-gray-800">
+              <label className="flex items-start space-x-3 cursor-pointer p-3 bg-gray-800/50 rounded-lg border border-gray-700/50 hover:bg-gray-800 transition-colors">
+                <div className="flex items-center h-5 mt-0.5">
+                  <input
+                    type="checkbox"
+                    name="acceptation_conditions"
+                    checked={formData.acceptation_conditions}
+                    onChange={handleChange}
+                    className="h-4 w-4 text-indigo-600 bg-gray-900 border-gray-600 rounded focus:ring-indigo-500"
+                  />
+                </div>
+                <div className="text-sm">
+                  <span className="font-medium text-gray-200">Conditions Générales *</span>
+                  <p className="text-gray-400">J'ai lu et j'accepte le <a href="/reglement" target="_blank" className="text-indigo-400 hover:underline">règlement du challenge 5 EN 5</a>.</p>
+                  <ErrorMessage name="acceptation_conditions" errors={errors} />
+                </div>
               </label>
             </div>
-            <ErrorMessage name="type_projet" errors={errors} />
-          </div>
-
-          <div>
-            <label htmlFor="description_besoin" className="block text-sm font-medium text-gray-300 mb-1">
-              Description de votre besoin *
-            </label>
-            <textarea
-              id="description_besoin"
-              name="description_besoin"
-              rows={5}
-              value={formData.description_besoin}
-              onChange={handleChange}
-              className={`w-full px-4 py-2.5 bg-gray-800/50 border ${errors.description_besoin ? 'border-red-500' : 'border-gray-700'} rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-white transition-colors`}
-              placeholder="Expliquez-nous pourquoi vous avez besoin d'un site web, ce qu'il doit faire..."
-            />
-            <p className="text-xs text-gray-500 mt-1">Minimum 20 caractères.</p>
-            <ErrorMessage name="description_besoin" errors={errors} />
-          </div>
-
-          <div className="space-y-3 pt-4 border-t border-gray-800">
-            <label className="flex items-start space-x-3 cursor-pointer p-3 bg-gray-800/50 rounded-lg border border-gray-700/50 hover:bg-gray-800 transition-colors">
-              <div className="flex items-center h-5 mt-0.5">
-                <input
-                  type="checkbox"
-                  name="acceptation_conditions"
-                  checked={formData.acceptation_conditions}
-                  onChange={handleChange}
-                  className="h-4 w-4 text-indigo-600 bg-gray-900 border-gray-600 rounded focus:ring-indigo-500"
-                />
-              </div>
-              <div className="text-sm">
-                <span className="font-medium text-gray-200">Conditions Générales *</span>
-                <p className="text-gray-400">J'ai lu et j'accepte le règlement du challenge 5 EN 5.</p>
-                <ErrorMessage name="acceptation_conditions" errors={errors} />
-              </div>
-            </label>
-          </div>
-        </div>
-      </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Navigation boutons */}
       <div className="pt-6 mt-6 border-t border-gray-800 flex items-center justify-between">

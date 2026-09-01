@@ -1,4 +1,6 @@
 import { getStats } from "@/app/actions/admin";
+import { getCandidaturesStatus } from "@/app/actions/settings";
+import ToggleCandidaturesButton from "@/components/admin/ToggleCandidaturesButton";
 import Link from "next/link";
 import { Users, CheckCircle, Clock, XCircle } from "lucide-react";
 
@@ -6,6 +8,7 @@ export const dynamic = "force-dynamic";
 
 export default async function AdminDashboard() {
   const stats = await getStats();
+  const candidaturesOuvertes = await getCandidaturesStatus();
 
   const statCards = [
     { name: "Total Candidatures", value: stats.total, icon: Users, color: "text-blue-500", bg: "bg-blue-500/10" },
@@ -59,6 +62,8 @@ export default async function AdminDashboard() {
           ))}
         </div>
       </div>
+      
+      <ToggleCandidaturesButton initialStatus={candidaturesOuvertes} />
     </div>
   );
 }

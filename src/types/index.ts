@@ -6,7 +6,8 @@ export type CandidatureStatus =
   | "SELECTIONNEE"
   | "REFUSEE"
   | "INELIGIBLE"
-  | "RETIREE";
+  | "RETIREE"
+  | "ARCHIVEE";
 
 export type TypeProjet = "creation" | "refonte";
 
@@ -40,6 +41,7 @@ export interface Candidature {
   // Admin
   score: number | null;
   note_interne: string | null;
+  archive_semaine?: number | null;
 }
 
 export interface Evaluation {

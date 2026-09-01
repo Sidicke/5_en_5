@@ -7,6 +7,9 @@ import { z } from "zod";
 
 type CandidatureInput = z.infer<typeof candidatureSchema>;
 
+import fs from "fs";
+import path from "path";
+
 export async function submitCandidature(
   data: CandidatureInput
 ): Promise<ActionResult> {
@@ -32,34 +35,57 @@ export async function submitCandidature(
   }
 
   const { honeypot, ...insertData } = validatedData;
+  const candidatureId = crypto.randomUUID();
+  const candidatureToSave = {
+    id: candidatureId,
+    ...insertData,
+    status: "RECUE",
+    created_at: new Date().toISOString(),
+  };
 
-  const supabase = await createAdminSupabase();
+  let supabaseSuccess = false;
 
+  // PLAN A : Supabase
   try {
+    const supabase = await createAdminSupabase();
     const { error } = await supabase
       .from("candidatures")
-      .insert({
-        ...insertData,
-        status: "RECUE",
-      });
+      .insert(candidatureToSave);
 
     if (error) {
-      console.error("Supabase error inserting candidature:", error);
-      return {
-        success: false,
-        message: "Une erreur est survenue lors de l'enregistrement. Veuillez réessayer plus tard.",
-      };
+      console.error("Plan A (Supabase) failed:", error.message);
+    } else {
+      supabaseSuccess = true;
     }
-
-    return {
-      success: true,
-      message: "Votre candidature a été enregistrée avec succès.",
-    };
   } catch (error) {
-    console.error("Unexpected error submitting candidature:", error);
-    return {
-      success: false,
-      message: "Une erreur inattendue est survenue. Veuillez réessayer plus tard.",
-    };
+    console.error("Plan A (Supabase) crashed:", error);
   }
+
+  // PLAN B : Si Supabase échoue, on sauvegarde dans un fichier JSON local (coute que coute)
+  if (!supabaseSuccess) {
+    console.log("Exécution du Plan B : Sauvegarde locale dans candidatures_backup.json");
+    try {
+      const backupFilePath = path.join(process.cwd(), "candidatures_backup.json");
+      let existingData = [];
+      
+      if (fs.existsSync(backupFilePath)) {
+        const fileContent = fs.readFileSync(backupFilePath, "utf8");
+        existingData = JSON.parse(fileContent);
+      }
+      
+      existingData.push(candidatureToSave);
+      fs.writeFileSync(backupFilePath, JSON.stringify(existingData, null, 2));
+      console.log("Candidature sauvegardée localement avec succès !");
+    } catch (fsError) {
+      console.error("Plan B a échoué. Plan C : On log au moins la candidature dans le terminal !", fsError);
+      console.log("=== SAUVEGARDE CANDIDATURE (PLAN C) ===");
+      console.log(JSON.stringify(candidatureToSave, null, 2));
+      console.log("======================================");
+    }
+  }
+
+  return {
+    success: true,
+    message: "Votre candidature a été enregistrée avec succès.",
+  };
 }

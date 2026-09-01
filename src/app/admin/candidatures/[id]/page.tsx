@@ -168,6 +168,7 @@ export default function CandidatureDetailPage({ params }: { params: Promise<{ id
                 <option value="REFUSEE">Refusée</option>
                 <option value="INELIGIBLE">Inéligible</option>
                 <option value="RETIREE">Retirée</option>
+                <option value="ARCHIVEE">Archivée</option>
               </select>
             </div>
 

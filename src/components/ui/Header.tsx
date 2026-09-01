@@ -2,10 +2,12 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -16,11 +18,15 @@ export default function Header() {
   }, []);
 
   const navLinks = [
-    { href: "#challenge", label: "Challenge" },
-    { href: "#fonctionnement", label: "Fonctionnement" },
-    { href: "#conditions", label: "Conditions" },
-    { href: "#projets", label: "Projets" },
+    { href: "/#challenge", label: "Challenge" },
+    { href: "/#fonctionnement", label: "Fonctionnement" },
+    { href: "/#conditions", label: "Conditions" },
+    { href: "/#projets", label: "Projets" },
   ];
+
+  if (pathname.startsWith("/admin")) {
+    return null;
+  }
 
   return (
     <header

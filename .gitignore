@@ -39,3 +39,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Local mocks and uploads
+candidatures_backup.json
+projets_backup.json
+settings_backup.json
+public/uploads/*
+!public/uploads/.gitkeep

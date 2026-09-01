@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { getProjects, createProject, updateProject, getCandidatures } from "@/app/actions/admin";
+import { getProjects, createProject, updateProject, getCandidatures, deleteProject } from "@/app/actions/admin";
 import { ProjetStatus } from "@/types";
-import { Plus, Edit2, Save, X, ExternalLink } from "lucide-react";
+import { Plus, Edit2, Save, X, ExternalLink, Trash2 } from "lucide-react";
 
 export default function ProjetsPage() {
   const [projets, setProjets] = useState<any[]>([]);
@@ -67,6 +67,13 @@ export default function ProjetsPage() {
     loadData();
   };
 
+  const handleDelete = async (id: string) => {
+    if (window.confirm("Voulez-vous vraiment supprimer ce projet ? L'entreprise sera retirée de la semaine.")) {
+      await deleteProject(id);
+      loadData();
+    }
+  };
+
   const weeks = [1, 2, 3, 4, 5];
 
   if (loading) return <div className="p-8 text-center text-gray-400">Chargement...</div>;
@@ -88,12 +95,22 @@ export default function ProjetsPage() {
               <div className="bg-[#0a0a0a] px-6 py-4 border-b border-[#1f2937] flex justify-between items-center">
                 <h2 className="font-bold text-lg">Semaine {week}</h2>
                 {!isEditing && (
-                  <button 
-                    onClick={() => handleEdit(week, projet)}
-                    className="text-indigo-400 hover:text-indigo-300 flex items-center text-sm font-medium"
-                  >
-                    {projet ? <><Edit2 size={16} className="mr-1" /> Modifier</> : <><Plus size={16} className="mr-1" /> Assigner</>}
-                  </button>
+                  <div className="flex gap-4">
+                    {projet && (
+                      <button 
+                        onClick={() => handleDelete(projet.id)}
+                        className="text-red-400 hover:text-red-300 flex items-center text-sm font-medium transition-colors"
+                      >
+                        <Trash2 size={16} className="mr-1" /> Supprimer
+                      </button>
+                    )}
+                    <button 
+                      onClick={() => handleEdit(week, projet)}
+                      className="text-indigo-400 hover:text-indigo-300 flex items-center text-sm font-medium transition-colors"
+                    >
+                      {projet ? <><Edit2 size={16} className="mr-1" /> Modifier</> : <><Plus size={16} className="mr-1" /> Assigner</>}
+                    </button>
+                  </div>
                 )}
                 {isEditing && (
                   <button 
@@ -162,13 +179,32 @@ export default function ProjetsPage() {
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-300 mb-1">URL Image de couverture</label>
-                        <input 
-                          type="text" 
-                          value={formData.image_url || ""}
-                          onChange={(e) => setFormData({...formData, image_url: e.target.value})}
-                          className="w-full px-4 py-2 bg-[#0a0a0a] border border-[#1f2937] rounded-lg text-white"
-                        />
+                        <label className="block text-sm font-medium text-gray-300 mb-1">Image de couverture</label>
+                        <div className="flex flex-col gap-2">
+                          <input 
+                            type="file" 
+                            accept="image/*"
+                            onChange={async (e) => {
+                              const file = e.target.files?.[0];
+                              if (!file) return;
+                              const data = new FormData();
+                              data.append('file', file);
+                              try {
+                                const res = await fetch('/api/upload', { method: 'POST', body: data });
+                                const json = await res.json();
+                                if (json.url) setFormData({...formData, image_url: json.url});
+                              } catch (error) {
+                                console.error('Erreur upload:', error);
+                              }
+                            }}
+                            className="w-full px-4 py-2 bg-[#0a0a0a] border border-[#1f2937] rounded-lg text-white file:mr-4 file:py-1 file:px-3 file:rounded file:border-0 file:text-sm file:bg-indigo-600 file:text-white hover:file:bg-indigo-700"
+                          />
+                          {formData.image_url && (
+                            <div className="text-xs text-green-400 truncate">
+                              ✓ Image uploadée ({formData.image_url})
+                            </div>
+                          )}
+                        </div>
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-300 mb-1">URL Site en ligne</label>

@@ -1,6 +1,8 @@
 import { getCandidatures } from "@/app/actions/admin";
 import Link from "next/link";
 import { Search } from "lucide-react";
+import { getCandidaturesStatus } from "@/app/actions/settings";
+import ArchiveButton from "@/components/admin/ArchiveButton";
 
 export const dynamic = "force-dynamic";
 
@@ -16,6 +18,7 @@ export default async function CandidaturesPage({
 
   const { data: candidatures, count } = await getCandidatures(query, status, page);
   const totalPages = Math.ceil(count / 20);
+  const isOpen = await getCandidaturesStatus();
 
   return (
     <div className="space-y-6">
@@ -24,6 +27,7 @@ export default async function CandidaturesPage({
           <h1 className="text-2xl font-bold">Candidatures</h1>
           <p className="text-gray-400 mt-1">{count} candidatures trouvées</p>
         </div>
+        <ArchiveButton candidaturesOuvertes={isOpen} />
       </div>
 
       <div className="bg-[#111827] border border-[#1f2937] rounded-xl p-4">
@@ -53,6 +57,7 @@ export default async function CandidaturesPage({
               <option value="REFUSEE">Refusée</option>
               <option value="INELIGIBLE">Inéligible</option>
               <option value="RETIREE">Retirée</option>
+              <option value="ARCHIVEE">Archivée</option>
             </select>
           </div>
           <button
@@ -85,7 +90,7 @@ export default async function CandidaturesPage({
                   </td>
                 </tr>
               ) : (
-                candidatures.map((cand) => (
+                candidatures.map((cand: any) => (
                   <tr key={cand.id} className="hover:bg-[#1f2937]/50 transition-colors">
                     <td className="px-6 py-4">
                       <div className="font-medium text-white">{cand.nom_entreprise}</div>
@@ -97,9 +102,16 @@ export default async function CandidaturesPage({
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <span className="text-xs font-medium px-2.5 py-1 rounded-full border border-gray-700 bg-gray-800/50">
-                        {cand.status}
-                      </span>
+                      <div className="flex flex-col gap-1 items-start">
+                        <span className="text-xs font-medium px-2.5 py-1 rounded-full border border-gray-700 bg-gray-800/50">
+                          {cand.status}
+                        </span>
+                        {cand.status === "ARCHIVEE" && cand.archive_semaine && (
+                          <span className="text-xs font-medium text-gray-400">
+                            Semaine {cand.archive_semaine}
+                          </span>
+                        )}
+                      </div>
                     </td>
                     <td className="px-6 py-4 font-medium">
                       {cand.score !== null ? (

@@ -8,6 +8,11 @@ export async function createServerSupabase() {
     process.env.NEXT_PUBLIC_SUPABASE_URL || "https://placeholder.supabase.co",
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "placeholder",
     {
+      global: {
+        fetch: (url, options) => {
+          return fetch(url, { ...options, cache: "no-store" });
+        },
+      },
       cookies: {
         getAll() {
           return cookieStore.getAll();
@@ -33,6 +38,11 @@ export async function createAdminSupabase() {
     process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_UR || "https://placeholder.supabase.co",
     process.env.SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || "placeholder",
     {
+      global: {
+        fetch: (url, options) => {
+          return fetch(url, { ...options, cache: "no-store" });
+        },
+      },
       cookies: {
         getAll() {
           return cookieStore.getAll();

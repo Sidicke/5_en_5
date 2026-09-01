@@ -8,6 +8,7 @@ export const dynamic = "force-dynamic";
 
 export default async function AdminDashboard() {
   const stats = await getStats();
+  if (stats.error) return <div className="p-8 text-red-500 font-bold text-2xl">Erreur Supabase (Dashboard): {stats.error}</div>;
   const candidaturesOuvertes = await getCandidaturesStatus();
 
   const statCards = [

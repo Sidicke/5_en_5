@@ -12,7 +12,7 @@ export async function getStats() {
     const { data: candidatures, error } = await supabase.from("candidatures").select("status");
     if (error) {
       console.error("getStats error:", error);
-      return { total: 0, byStatus: {}, error: error.message };
+      return { total: 0, byStatus: {} as Record<string, number>, error: error.message };
     }
     const byStatus = candidatures.reduce((acc, curr) => {
       acc[curr.status] = (acc[curr.status] || 0) + 1;
@@ -21,7 +21,7 @@ export async function getStats() {
     return { total: candidatures.length, byStatus, error: null };
   } catch (e: any) {
     console.error("getStats exception:", e);
-    return { total: 0, byStatus: {}, error: e.message };
+    return { total: 0, byStatus: {} as Record<string, number>, error: e.message };
   }
 }
 
